@@ -11,7 +11,7 @@ description = "Demo project for Spring Boot"
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
-        vendor.set(JvmVendorSpec.AMAZON)
+        vendor.set(JvmVendorSpec.ANY)
     }
 }
 

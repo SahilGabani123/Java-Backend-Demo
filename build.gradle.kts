@@ -54,7 +54,6 @@ gradle.settingsEvaluated {
     javaToolchains {
         repositories {
             mavenCentral()
-            gradleToolchains() // Gradle will download JDK if missing
         }
     }
 }

@@ -6,12 +6,10 @@ plugins {
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
-description = "Demo project for Spring Boot"
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
@@ -19,25 +17,23 @@ repositories {
 }
 
 dependencies {
-    // Spring Boot starters
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    
-    implementation("org.springframework.boot:spring-boot-starter-web")    
-	implementation("org.springframework.boot:spring-boot-starter-webmvc")
-	testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    // Web + REST
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    // JPA + Validation + Actuator
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-    // Database
+    // DB
     runtimeOnly("com.h2database:h2")
 
+    // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    
 }
 
 tasks.withType<Test> {

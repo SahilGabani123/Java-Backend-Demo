@@ -11,7 +11,7 @@ description = "Demo project for Spring Boot"
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
-        vendor.set(JvmVendorSpec.ADOPTIUM)
+        vendor.set(JvmVendorSpec.ECLIPSE)
     }
 }
 
@@ -43,6 +43,15 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+gradleToolchains {
+    repositories {
+        maven {
+            url = uri("https://services.gradle.org/distributions")
+        }
+        mavenCentral()
+    }
 }
 
 tasks.withType<JavaCompile> {

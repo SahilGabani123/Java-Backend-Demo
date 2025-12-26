@@ -11,6 +11,7 @@ description = "Demo project for Spring Boot"
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+        vendor.set(JvmVendorSpec.ADOPTIUM)
     }
 }
 
@@ -46,4 +47,5 @@ tasks.withType<Test> {
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("-parameters")
+	options.release.set(17)
 }

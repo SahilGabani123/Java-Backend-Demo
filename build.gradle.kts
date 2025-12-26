@@ -11,7 +11,6 @@ description = "Demo project for Spring Boot"
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
-        vendor.set(JvmVendorSpec.ADOPTOPENJDK)
     }
 }
 
@@ -47,17 +46,4 @@ tasks.withType<Test> {
 
 tasks.withType<JavaCompile> {
     options.compilerArgs.add("-parameters")
-    options.compilerArgs.add("-Xlint:unchecked")
-	options.release.set(17)
-}
-
-gradle.settingsEvaluated {
-    javaToolchains {
-        repositories {
-			maven {
-                url = uri("https://services.gradle.org/distributions")
-            }
-            mavenCentral()
-        }
-    }
 }

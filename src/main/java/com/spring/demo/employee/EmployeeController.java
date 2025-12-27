@@ -29,7 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-
+import jakarta.validation.constraints.Email;
 
 @RestController
 @RequestMapping("api/v1")
@@ -54,13 +54,11 @@ class EmployeeController {
 
 		PageRequest pageable = PageRequest.of(page - 1, perPage);
 		Page<Employee> employeePage = repository.findAll(pageable);
-		
 	    employeePage.getContent().forEach(employee -> {
 	    	  Long count = projectRepository.countByEmployeeId(employee.getId());
 			  employee.setProjectCount(count);
 			  employee.setProjects(null);
 	    });
-
 
 		String baseUrl = request.getRequestURI();
 
@@ -83,7 +81,7 @@ class EmployeeController {
 		            )
 		    );
 	}
-
+	
 	// ================== CREATE ==================
 	@PostMapping(
             value = "/employees",
@@ -136,53 +134,66 @@ class EmployeeController {
 		return ResponseEntity.ok(new ApiResponse(true, "Employee deleted successfully"));
 	}
 
-//	@PutMapping("/employees/{id}")
-//	Employee replaceEmployee(
-//	        @RequestBody Employee newEmployee,
-//	        @PathVariable("id") Long id) {
-//
-//	    Employee employee = repository.findById(id)
-//	            .orElseThrow(() -> new EmployeeNotFoundException(id));
-//
-//	    if (newEmployee.getName() != null) {
-//	        employee.setName(newEmployee.getName());
-//	    }
-//
-//	    if (newEmployee.getRole() != null) {
-//	        employee.setRole(newEmployee.getRole());
-//	    }
-//
-//	    return repository.save(employee);
-//	}
-
 	// ================== UPDATE (PARTIAL) ==================
 	@PutMapping("/employees/{id}")
-	public ResponseEntity<ApiResponse> updateEmployee(@PathVariable("id") Long id, @RequestBody Employee newEmployee) {
+	public ResponseEntity<ApiResponse> updateEmployee(
+	        @PathVariable("id") Long id,
+
+	        @RequestParam(value = "name", required = false) String name,
+
+	        @RequestParam(value = "position", required = false) String position,
+
+	        @RequestParam(value = "joining_date", required = false) String joiningDateStr,
+
+	        @RequestParam(value = "leaving_date", required = false) String leavingDateStr,
+
+	        @RequestParam(value = "company_email", required = false)
+	        @Email(message = "Invalid company email format")
+	        String companyEmail,
+
+	        @RequestParam(value = "personal_email", required = false)
+	        @Email(message = "Invalid personal email format")
+	        String personalEmail,
+
+	        @RequestParam(value = "phone_number", required = false) String phoneNumber,
+
+	        @RequestParam(value = "field", required = false) String field
+	) {
 
 		Employee employee = repository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
 
-		if (newEmployee.getName() != null)
-			employee.setName(newEmployee.getName());
-
-		if (newEmployee.getPosition() != null)
-			employee.setPosition(newEmployee.getPosition());
-
-		if (newEmployee.getJoiningDate() != null)
-			employee.setJoiningDate(newEmployee.getJoiningDate());
+		if (name != null && !name.isEmpty()) {
+			employee.setName(name);
+		}
 		
-			employee.setLeavingDate(newEmployee.getLeavingDate());
+		if (position != null && !position.isEmpty()) {
+			employee.setPosition(position);
+		}
 
-		if (newEmployee.getPersonalEmail() != null)
-			employee.setPersonalEmail(newEmployee.getPersonalEmail());
+		employee.setLeavingDate(leavingDateStr);
+		
+		if (joiningDateStr != null && !joiningDateStr.isEmpty()) {
+			employee.setJoiningDate(leavingDateStr);
+		}
 
-		if (newEmployee.getCompanyEmail() != null)
-			employee.setCompanyEmail(newEmployee.getCompanyEmail());
+		if (position != null && !position.isEmpty()) {
+			employee.setPosition(position);
+		}
 
-		if (newEmployee.getField() != null)
-			employee.setField(newEmployee.getField());
+		if (companyEmail != null && !companyEmail.isEmpty()) {
+			employee.setCompanyEmail(companyEmail);
+		}
+		if (personalEmail != null && !personalEmail.isEmpty()) {
+			employee.setPersonalEmail(personalEmail);
+		}
 
-		if (newEmployee.getPhoneNumber() != null)
-			employee.setPhoneNumber(newEmployee.getPhoneNumber());
+		if (phoneNumber != null && !phoneNumber.isEmpty()) {
+			employee.setPhoneNumber(phoneNumber);
+		}
+
+		if (field != null && !field.isEmpty()) {
+			employee.setField(field);
+		}
 
 		repository.save(employee);
 

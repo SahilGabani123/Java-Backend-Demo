@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spring.demo.employee.model.UpdateEmployeeRequest;
 import com.spring.demo.project.Project;
 import com.spring.demo.project.ProjectRepository;
 
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -44,16 +46,25 @@ class EmployeeController {
 		this.projectRepository = projectRepository;
 		
 	}
-
+	
 	@GetMapping("/employees")
 	public ResponseEntity<ApiResponse> all(
 			@RequestParam(name = "page", defaultValue = "1") int page,
 			@RequestParam(name = "perPage", defaultValue = "10") int perPage,
+			@RequestParam(name = "field", required = false) String field,
+	        @RequestParam(name = "position", required = false) String position,
+	        @RequestParam(name = "search", required = false) String search,
 			HttpServletRequest request
 	) {
 
 		PageRequest pageable = PageRequest.of(page - 1, perPage);
-		Page<Employee> employeePage = repository.findAll(pageable);
+
+	    Page<Employee> employeePage = repository.searchEmployees(
+	            field,
+	            position,
+	            search,
+	            pageable
+	    );
 	    employeePage.getContent().forEach(employee -> {
 	    	  Long count = projectRepository.countByEmployeeId(employee.getId());
 			  employee.setProjectCount(count);
@@ -137,67 +148,41 @@ class EmployeeController {
 	// ================== UPDATE (PARTIAL) ==================
 	@PutMapping("/employees/{id}")
 	public ResponseEntity<ApiResponse> updateEmployee(
-	        @PathVariable("id") Long id,
-
-	        @RequestParam(value = "name", required = false) String name,
-
-	        @RequestParam(value = "position", required = false) String position,
-
-	        @RequestParam(value = "joining_date", required = false) String joiningDateStr,
-
-	        @RequestParam(value = "leaving_date", required = false) String leavingDateStr,
-
-	        @RequestParam(value = "company_email", required = false)
-	        @Email(message = "Invalid company email format")
-	        String companyEmail,
-
-	        @RequestParam(value = "personal_email", required = false)
-	        @Email(message = "Invalid personal email format")
-	        String personalEmail,
-
-	        @RequestParam(value = "phone_number", required = false) String phoneNumber,
-
-	        @RequestParam(value = "field", required = false) String field
+	        @PathVariable("id")  Long id,
+	        @RequestBody UpdateEmployeeRequest req
 	) {
 
-		Employee employee = repository.findById(id).orElseThrow(() -> new EmployeeNotFoundException(id));
+	    Employee employee = repository.findById(id)
+	            .orElseThrow(() -> new EmployeeNotFoundException(id));
 
-		if (name != null && !name.isEmpty()) {
-			employee.setName(name);
-		}
-		
-		if (position != null && !position.isEmpty()) {
-			employee.setPosition(position);
-		}
+	    if (req.getName() != null)
+	        employee.setName(req.getName());
 
-		employee.setLeavingDate(leavingDateStr);
-		
-		if (joiningDateStr != null && !joiningDateStr.isEmpty()) {
-			employee.setJoiningDate(leavingDateStr);
-		}
+	    if (req.getPosition() != null)
+	        employee.setPosition(req.getPosition());
 
-		if (position != null && !position.isEmpty()) {
-			employee.setPosition(position);
-		}
+	    if (req.getJoiningDate() != null)
+	        employee.setJoiningDate(req.getJoiningDate());
 
-		if (companyEmail != null && !companyEmail.isEmpty()) {
-			employee.setCompanyEmail(companyEmail);
-		}
-		if (personalEmail != null && !personalEmail.isEmpty()) {
-			employee.setPersonalEmail(personalEmail);
-		}
+	    employee.setLeavingDate(req.getLeavingDate());
 
-		if (phoneNumber != null && !phoneNumber.isEmpty()) {
-			employee.setPhoneNumber(phoneNumber);
-		}
+	    if (req.getCompanyEmail() != null)
+	        employee.setCompanyEmail(req.getCompanyEmail());
 
-		if (field != null && !field.isEmpty()) {
-			employee.setField(field);
-		}
+	    if (req.getPersonalEmail() != null)
+	        employee.setPersonalEmail(req.getPersonalEmail());
 
-		repository.save(employee);
+	    if (req.getPhoneNumber() != null)
+	        employee.setPhoneNumber(req.getPhoneNumber());
 
-		return ResponseEntity.ok(new ApiResponse(true, "Employee updated successfully", employee));
+	    if (req.getField() != null)
+	        employee.setField(req.getField());
+
+	    repository.save(employee);
+
+	    return ResponseEntity.ok(
+	        new ApiResponse(true, "Employee updated successfully", employee)
+	    );
 	}
 	
 	public static Instant toInstant(String date) {
